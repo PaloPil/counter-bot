@@ -68,6 +68,20 @@ module.exports = {
         })
         .setRequired(false)
     )
+    .addStringOption((option) =>
+      option
+        .setName("emoji")
+        .setNameLocalizations({
+          fr: "emoji",
+        })
+        .setDescription(
+          "The emoji that will be used to react to the messages. \"no\" to disable reactions. (default: ✅)"
+        )
+        .setDescriptionLocalizations({
+          fr: "L'emoji utilisé pour réagir aux messages. \"no\" pour aucune réaction. (par défaut : ✅)",
+        })
+        .setRequired(false)
+    )
     .addIntegerOption((option) =>
       option
         .setName("starting_number")
@@ -88,6 +102,7 @@ module.exports = {
     const channel = interaction.options.getChannel("channel");
     const timeout_time = interaction.options.getInteger("timeout_time") || 5;
     const timeout_role = interaction.options.getRole("timeout_role");
+    const emoji = interaction.options.getString("emoji") || "✅";
 
     if (
       assert(interaction, starting_number >= 0, "Le nombre de départ ne peut pas être négatif.") ||
@@ -99,11 +114,7 @@ module.exports = {
       return;
     }
 
-    console.log("REPLY TO DEFER");
-
     await interaction.deferReply();
-
-    console.log("deferred reply");
     
     const filePath = `${guilds_dir}/${interaction.guildId}.txt`;
     if (!fs.existsSync(guilds_dir)) {
@@ -115,7 +126,8 @@ module.exports = {
       0, // Placeholder for the user ID, not used in this command
       channel.id,
       timeout_time.toString(),
-      timeout_role.id
+      timeout_role.id,
+      emoji.trim()
     ].join("\n"), "utf-8");
 
 
@@ -142,7 +154,6 @@ module.exports = {
       .setTimestamp();
 
     await interaction.editReply({ embeds: [embed] });
-
 
   }
 

@@ -35,7 +35,7 @@ function get_server_data(guildId) {
   const filePath = `${guilds_dir}/${guildId}.txt`;
 
   if (!fs.existsSync(filePath)) {
-    return { num: null, userId: null, channelId: null, time: null, roleId: null }; 
+    return { num: null, userId: null, channelId: null, time: null, roleId: null, emoji: null }; 
   }
 
   const data = fs.readFileSync(filePath, "utf-8").split("\n");
@@ -45,8 +45,9 @@ function get_server_data(guildId) {
   const channelId = data[2];
   const time = parseInt(data[3], 10);
   const roleId = data[4];
+  const emoji = data[5].trim();
 
-  return { num, userId, channelId, time, roleId };
+  return { num, userId, channelId, time, roleId, emoji };
 }
 
 function parse(str) {
@@ -70,9 +71,9 @@ module.exports = {
   async execute(message) {
     if (message.author.bot || !message.guild) return;
 
-    const { num, userId, channelId, time, roleId } = get_server_data(message.guildId);
+    const { num, userId, channelId, time, roleId, emoji } = get_server_data(message.guildId);
 
-    if (num === null || userId === null || channelId === null || time === null || roleId === null) {
+    if (num === null || userId === null || channelId === null || time === null || roleId === null || emoji === null) {
       return;
     }
 
@@ -82,8 +83,9 @@ module.exports = {
 
     if (message.author.id != userId &&
         number != NaN && number == num + 1) {
-
-      message.react("✅").catch(console.error);
+      if (emoji.toLowerCase() != "no") {
+        message.react(emoji).catch(console.error);
+      }
       store_number(message.guildId, num + 1, message.author.id);
     
     } else {
