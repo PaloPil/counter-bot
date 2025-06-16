@@ -1,0 +1,25 @@
+{
+  "name": "counter-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot to create #counter channels",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaloPil/counter-bot.git"
+  },
+  "author": "PaloPil",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PaloPil/counter-bot/issues"
+  },
+  "homepage": "https://github.com/PaloPil/counter-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.20.0",
+    "dotenv": "^16.5.0",
+    "nodemon": "^3.1.10"
+  }
+}
