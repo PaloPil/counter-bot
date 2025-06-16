@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/PaloPil/counter-bot#readme",
   "dependencies": {
+    "base-64": "^1.0.0",
     "discord.js": "^14.20.0",
     "dotenv": "^16.5.0",
     "nodemon": "^3.1.10"
