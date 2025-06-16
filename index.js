@@ -1,3 +1,5 @@
+process.chdir(__dirname);
+
 require("dotenv").config();
 const { Client, Collection, IntentsBitField } = require("discord.js");
 const fs = require("node:fs");
