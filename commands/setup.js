@@ -149,7 +149,8 @@ module.exports = {
         `**Nombre de départ :** ${starting_number}\n` +
         `**Salon :** ${channel}\n` +
         `**Temps d'exclusion :** ${timeout_time} minutes\n` +
-        `**Rôle d'exclusion :** ${timeout_role}`
+        `**Rôle d'exclusion :** ${timeout_role}`,
+        `**Emoji :** ${emoji !== "no" ? emoji : "*Aucun*"}`
       )
       .setTimestamp();
 
