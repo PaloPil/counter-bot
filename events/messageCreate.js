@@ -1,6 +1,6 @@
-const { Events, Embed } = require("discord.js");
+const { Events } = require("discord.js");
 const fs = require("node:fs");
-const { client } = require("../index.js");
+
 
 const guilds_dir = "guilds";
 
