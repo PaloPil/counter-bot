@@ -52,6 +52,8 @@ function get_server_data(guildId) {
 }
 
 function parse(str) {
+  if (str.includes("​")) return NaN;
+  
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
   var parser = new Parser();
