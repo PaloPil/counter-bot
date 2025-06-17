@@ -53,14 +53,16 @@ function get_server_data(guildId) {
 function parse(str) {
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
-  try {
-    number = eval(str);
-  }
-  catch (e) {
-    return NaN;
+  number = str
+  while (typeof number !== 'number') {
+    try {
+      number = eval(number);
+    } catch (e) {
+      return NaN;
+    }
   }
 
-  return parseInt(number, 10);
+  return number;
 }
 
 
