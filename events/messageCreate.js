@@ -52,7 +52,7 @@ function get_server_data(guildId) {
 }
 
 function parse(str) {
-  if (str.includes("​")) return NaN;
+  if (str.split("|").length > 100) return NaN; // >= 25 spoilers -> Suspect
   
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
