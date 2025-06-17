@@ -1,5 +1,6 @@
 const { Events } = require("discord.js");
 const fs = require("node:fs");
+const Parser = require("expr-eval").Parser;
 
 
 const guilds_dir = "guilds";
@@ -53,13 +54,12 @@ function get_server_data(guildId) {
 function parse(str) {
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
-  number = str
-  while (typeof number !== 'number') {
-    try {
-      number = eval(number);
-    } catch (e) {
-      return NaN;
-    }
+  var parser = new Parser();
+
+  try {
+    number = parser.evaluate(str);
+  } catch (e) {
+    return NaN;
   }
 
   return number;
