@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { EmbedBuilder, ChannelType, MessageFlags } = require("discord.js");
+const { EmbedBuilder, ChannelType, MessageFlags, PermissionFlagsBits } = require("discord.js");
 const fs = require("node:fs");
 
 const guilds_dir = "guilds";
@@ -27,6 +27,7 @@ module.exports = {
     .setDescriptionLocalizations({
       fr: "Permet de configurer le bot pour votre serveur.",
     })
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addChannelOption((option) =>
       option
         .setName("channel")
@@ -96,6 +97,14 @@ module.exports = {
     ),
 
   async execute(interaction) {
+
+    if (!interaction.member.hasPermission(PermissionFlagsBits.ManageGuild)) {
+      return interaction.reply({
+        content: "Vous n'avez pas la permission de gérer le serveur.",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
     console.log(`Commande '/${this.data.name}' reçue.`);
 
     const starting_number = interaction.options.getInteger("starting_number") || 0;
