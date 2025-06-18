@@ -52,7 +52,7 @@ function get_server_data(guildId) {
 }
 
 function parse(str) {
-  if (str.split("|").length > 100) return NaN; // >= 25 spoilers -> Suspect
+  if (suspect_input(str)) return NaN;
   
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
@@ -65,6 +65,11 @@ function parse(str) {
   }
 
   return number;
+}
+
+function suspect_input(str) {
+  return (str.split("|").length > 100) && // >= 25 spoilers 
+         (str.split("|").length > 100);
 }
 
 
