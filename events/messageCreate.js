@@ -52,7 +52,12 @@ function get_server_data(guildId) {
 }
 
 function parse(str) {
-  if (suspect_input(str)) return NaN;
+  if (suspect_input(str)) {
+    console.log("===== SUPSECT INPUT DETECTED =====\n" +
+                str +
+                "==================================");
+    return NaN;
+  }
   
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
