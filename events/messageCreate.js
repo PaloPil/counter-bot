@@ -2,6 +2,13 @@ const { Events } = require("discord.js");
 const fs = require("node:fs");
 const Parser = require("expr-eval").Parser;
 
+const url = 'http://localhost:8080/calculate';
+const options = {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: {"expression":"TODO","variables":{}}
+};
+
 
 const guilds_dir = "guilds";
 
@@ -51,25 +58,31 @@ function get_server_data(guildId) {
   return { num, userId, channelId, time, roleId, emoji };
 }
 
-function parse(str) {
+async function parse(str) {
   if (suspect_input(str)) {
-    console.log("===== SUPSECT INPUT DETECTED =====\n" +
-                str +
+    console.log("===== SUSPECT INPUT DETECTED =====\n" +
+                 str +
                 "==================================");
     return NaN;
   }
-  
+
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
-  var parser = new Parser();
+  options.body.expression = str;
 
   try {
-    number = parser.evaluate(str);
-  } catch (e) {
+    const response = await fetch(url, options);
+    const data = await response.json();
+  } catch (error) {
+    console.error(error);
     return NaN;
   }
 
-  return number;
+  if (data.error) {
+    return NaN;
+  }
+
+  return data.result;
 }
 
 function suspect_input(str) {
@@ -97,7 +110,7 @@ module.exports = {
 
     if (message.channelId != channelId) return;
 
-    let number = parse(message.content);
+    let number = await parse(message.content);
 
     if (message.author.id != userId &&
       number != NaN && number == num + 1) {
