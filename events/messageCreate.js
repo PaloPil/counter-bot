@@ -86,10 +86,11 @@ async function parse(str) {
 }
 
 function suspect_input(str) {
-  return (str.split("|").length > 100) || // >= 25 spoilers 
+  return (str.split("|").length > 100) || 
          (str.split("*").length > 100) ||
          (str.split("_").length > 100) ||
          (str.split("`").length > 100) ||
+         (str.split("~").length > 100) ||
          (str.length > 1000);
 }
 
