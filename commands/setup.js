@@ -97,14 +97,6 @@ module.exports = {
     ),
 
   async execute(interaction) {
-
-    if (!interaction.member.hasPermission(PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({
-        content: "Vous n'avez pas la permission de gérer le serveur.",
-        flags: MessageFlags.Ephemeral,
-      });
-    }
-
     console.log(`Commande '/${this.data.name}' reçue.`);
 
     const starting_number = interaction.options.getInteger("starting_number") || 0;
