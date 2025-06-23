@@ -1,14 +1,7 @@
 const { Events } = require("discord.js");
 const fs = require("node:fs");
-const Parser = require("expr-eval").Parser;
 
 const url = 'http://localhost:8080/calculate';
-const options = {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: {"expression":"TODO","variables":{}}
-};
-
 
 const guilds_dir = "guilds";
 
@@ -68,11 +61,18 @@ async function parse(str) {
 
   str = str.replace(/(\|\|.*?\|\|)/g, "");
 
-  options.body.expression = str;
+  data = undefined;
 
   try {
-    const response = await fetch(url, options);
-    const data = await response.json();
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        expression: str,
+        variables: {}
+      }),
+      headers: {'Content-Type': 'application/json'}
+    });
+    data = await response.json();
   } catch (error) {
     console.error(error);
     return NaN;
