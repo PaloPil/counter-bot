@@ -8,14 +8,14 @@ module.exports = {
   async execute(message, newMessage) {
     if (message.author.bot || !message.guild) return;
 
-    const { num, userId, channelId, time, roleId, emoji } =
+    const { num, userId, channelId, time, roleId } =
       get_server_data(message.guildId);
 
     if (num === null) {
       return;
     }
 
-    if (message.channelId != channelId) return;
+    if (message.channelId !== channelId) return;
     if (message.author.id != userId) return;
     
     let number = await parse(message.content);
