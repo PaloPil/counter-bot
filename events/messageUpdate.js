@@ -32,6 +32,9 @@ module.exports = {
       })
 	    .then(webhook =>
 	      webhook.send(num)
+	      .then(() => 
+	        webhook.delete()
+	      )
       );
 
       message.delete();
