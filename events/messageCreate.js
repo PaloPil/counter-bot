@@ -22,9 +22,15 @@ module.exports = {
     if (message.author.id != userId &&
       number != NaN && number == num + 1) {
       if (emoji.toLowerCase() != "no") {
-        message.react(emoji).catch(console.error);
+        try {
+          await message.react(emoji);
+          store_number(message.guildId, num + 1, message.author.id);
+        } catch (error) {
+          await message.delete();
+        }
+      } else {
+        store_number(message.guildId, num + 1, message.author.id);
       }
-      store_number(message.guildId, num + 1, message.author.id);
 
     } else {
 
