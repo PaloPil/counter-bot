@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { EmbedBuilder, ChannelType, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { EmbedBuilder, ChannelType, MessageFlags, PermissionFlagsBits, PermissionsBitField } = require("discord.js");
 const fs = require("node:fs");
 
 const guilds_dir = "guilds";
@@ -117,6 +117,15 @@ module.exports = {
 
     await interaction.deferReply();
     
+    const botMember = interaction.guild.members.me;
+    if (!channel.permissionsFor(botMember).has(PermissionsBitField.Flags.SendMessages)) {
+      await interaction.editReply({
+        content: "I do not have permission to send messages in the specified channel.",
+        ephemeral: true,
+      });
+      return;
+    }
+
     const filePath = `${guilds_dir}/${interaction.guildId}.txt`;
     if (!fs.existsSync(guilds_dir)) {
       fs.mkdirSync(guilds_dir, { recursive: true });
