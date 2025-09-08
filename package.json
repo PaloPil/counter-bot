@@ -5,22 +5,37 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "health": "node health-check.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PaloPil/counter-bot.git"
+    "url": "git+https://github.com/TotoB12/counter-bot-epita.git"
   },
-  "author": "PaloPil",
+  "author": "TotoB12",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PaloPil/counter-bot/issues"
+    "url": "https://github.com/TotoB12/counter-bot-epita/issues"
   },
-  "homepage": "https://github.com/PaloPil/counter-bot#readme",
+  "homepage": "https://github.com/TotoB12/counter-bot-epita#readme",
   "dependencies": {
-    "base-64": "^1.0.0",
     "discord.js": "^14.20.0",
-    "dotenv": "^16.5.0",
-    "nodemon": "^3.1.10"
-  }
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "counter",
+    "counting",
+    "moderation"
+  ]
 }

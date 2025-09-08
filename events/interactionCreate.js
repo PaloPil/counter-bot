@@ -25,6 +25,6 @@ module.exports = {
         ephemeral: true,
       });
     }
-    
+
   }
-}
+};
