@@ -1,12 +1,19 @@
 process.chdir(__dirname);
 
 require("dotenv").config();
+
+// Validate required environment variables
+if (!process.env.DISCORD_TOKEN) {
+  console.error("DISCORD_TOKEN environment variable is required");
+  process.exit(1);
+}
+
 const { Client, Collection, IntentsBitField } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
 const { REST } = require("@discordjs/rest");
-const base64 = require("base-64");
 const { Routes } = require("discord-api-types/v9");
+
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
 const client = new Client({
@@ -63,6 +70,20 @@ for (const file of commandFiles) {
   commands.push(command.data.toJSON());
 }
 
+// Get application ID from token (more reliable than base64 decoding)
+const getApplicationId = () => {
+  try {
+    const tokenParts = process.env.DISCORD_TOKEN.split(".");
+    if (tokenParts.length !== 3) {
+      throw new Error("Invalid token format");
+    }
+    return Buffer.from(tokenParts[0], "base64").toString("ascii");
+  } catch (error) {
+    console.error("Failed to extract application ID from token:", error.message);
+    process.exit(1);
+  }
+};
+
 (async () => {
   try {
     console.log(
@@ -70,9 +91,7 @@ for (const file of commandFiles) {
     );
 
     const data = await rest.put(
-      Routes.applicationCommands(
-        base64.decode(process.env.DISCORD_TOKEN.split(".")[0])
-      ),
+      Routes.applicationCommands(getApplicationId()),
       { body: commands }
     );
 
@@ -80,17 +99,18 @@ for (const file of commandFiles) {
       `Successfully reloaded ${data.length} application (/) commands.`
     );
   } catch (error) {
-    console.error(error);
+    console.error("Failed to register commands:", error);
+    process.exit(1);
   }
 })();
 
 
+client.on("error", (error) => console.error("Discord client error:", error));
+client.on("warn", (warning) => console.warn("Discord client warning:", warning));
+client.once("disconnect", () => console.warn("Bot is disconnecting..."));
+client.once("reconnecting", () => console.log("Bot reconnecting..."));
 
-client.on("error", (e) => console.error(e));
-client.on("warn", (e) => console.warn(e));
-client.once("disconnect", () =>
-  client.error("Bot is disconnecting...", "warn")
-);
-client.once("reconnecting", () => client.warn("Bot reconnecting...", "log"));
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN).catch((error) => {
+  console.error("Failed to login:", error);
+  process.exit(1);
+});
