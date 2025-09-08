@@ -7,8 +7,8 @@ module.exports = {
   async execute(client) {
 
     client.user.setPresence({
-        activities: [{ name: "numbers", type: ActivityType.Watching }],
-        status: "online",
+      activities: [{ name: "numbers", type: ActivityType.Watching }],
+      status: "online",
     });
 
     console.log(`En ligne sur ${client.guilds.cache.size} serveur(s) en tant que @${client.user.tag} !`);
