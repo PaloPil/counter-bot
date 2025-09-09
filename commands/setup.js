@@ -120,7 +120,7 @@ module.exports = {
     const botMember = interaction.guild.members.me;
     if (!channel.permissionsFor(botMember).has(PermissionsBitField.Flags.SendMessages)) {
       await interaction.editReply({
-        content: "I do not have permission to send messages in the specified channel.",
+        content: "Je n'ai pas la permission d'envoyer de messages dans le salon indiqué.",
         ephemeral: true,
       });
       return;
