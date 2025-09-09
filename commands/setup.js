@@ -121,7 +121,7 @@ module.exports = {
     if (!channel.permissionsFor(botMember).has(PermissionsBitField.Flags.SendMessages)) {
       await interaction.editReply({
         content: "Je n'ai pas la permission d'envoyer de messages dans le salon indiqué.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
