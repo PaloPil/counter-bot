@@ -23,15 +23,12 @@ module.exports = {
 
     mute(message.member, time, roleId);
 
-    message.channel.createWebhook({
-        name: message.member.nickname ?? message.author.displayName,
-	      avatar: message.author.displayAvatarURL(),
-      })
-	    .then(webhook =>
-	      webhook.send(num)
-	      .then(() =>
-	        webhook.delete()
-	      )
-      );
-    }
+    const webhook = await message.channel.createWebhook({
+      name: message.member.displayName ?? message.author.username,
+      avatar: message.author.displayAvatarURL(),
+    });
+
+    await webhook.send(message.content);
+    await webhook.delete();
+  }
 }
