@@ -6,7 +6,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ./src ./src
 RUN CGO_ENABLED=0 go build -o /bin/counter-bot ./src
 
 # === RUNNER ===
@@ -17,6 +17,6 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
 COPY --from=builder /bin/counter-bot /counter-bot
 
-VOLUME ["/opt/counter-bot"]
+VOLUME ["/data"]
 
 ENTRYPOINT [ "/counter-bot" ]

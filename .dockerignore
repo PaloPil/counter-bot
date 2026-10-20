@@ -1,3 +1,14 @@
-flake.*
-Justfile
+# Docker files
 Dockerfile
+
+# .git, .gitignore, .github...
+.git*
+
+# Dev environment
+flake.*
+
+Justfile
+
+.env
+.direnv
+.envrc
