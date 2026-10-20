@@ -22,13 +22,13 @@ type GuildConfig struct {
 func DbOpen(l *log.Logger) *bolt.DB {
 	dbPath, set := os.LookupEnv("DB_PATH")
 	if !set {
-		dbPath = "/opt/counter-bot/data.db"
+		dbPath = "/data/config.db"
 		l.Printf("No `DB_PATH` defined, defaulting to `%s`", dbPath)
 	}
 
 	db, err := bolt.Open(dbPath, 0600, nil)
 	if err != nil {
-		l.Fatal("Cannot open database")
+		l.Fatalf("Cannot open database at `%s`", dbPath)
 	}
 
 	err = db.Update(func(tx *bolt.Tx) error {
