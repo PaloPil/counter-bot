@@ -35,7 +35,7 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 			Description: "Reaction that will be added to valid numbers (Default: ✅)",
 			Required:    false,
 		},
-	).RequirePermissions(permissions.Administrator)
+	).RequirePermissions(permissions.ManageGuild)
 }
 
 func setupHandler(db *bolt.DB) func(*bot.InteractionContext) {
