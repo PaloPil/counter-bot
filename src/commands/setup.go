@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"os"
 	"palopil/counter-bot/src/utils"
 
 	"github.com/discord-go/discord.go/bot"
@@ -36,6 +37,18 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 			Required:    false,
 		},
 	).RequirePermissions(permissions.ManageGuild)
+
+	ownerid, defined := os.LookupEnv("OWNER_ID")
+	if defined {
+		router.Command("force-setup", "Manual setup by bot owner",
+			func(ctx *bot.InteractionContext) {
+				if ctx.User().ID.String() != ownerid {
+					ctx.ReplyEphemeral("error.")
+					return
+				}
+				setupHandler(db)(ctx)
+			})
+	}
 }
 
 func setupHandler(db *bolt.DB) func(*bot.InteractionContext) {
