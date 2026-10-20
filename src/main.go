@@ -33,7 +33,7 @@ func main() {
 	)
 
 	commands.RegisterCommands(router, l, db)
-	events.RegisterEvents(client, l, db)
+	client.OnMessageCreate(events.MessageCreateEventHandler(l, db))
 
 	if err := client.Run(); err != nil {
 		l.Fatalln(err)
