@@ -51,7 +51,7 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 		var prev int64 = 0
 		if prevMessage != nil {
 			if prevMessage.Author.ID == message.Author.ID {
-				utils.PunishAuthor(ctx, cfg, l)
+				go utils.PunishAuthor(ctx, cfg, l)
 				return
 			}
 
@@ -69,7 +69,7 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 				}
 			}()
 		} else {
-			utils.PunishAuthor(ctx, cfg, l)
+			go utils.PunishAuthor(ctx, cfg, l)
 		}
 	}
 }
