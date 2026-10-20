@@ -20,13 +20,13 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 		},
 		interactions.ApplicationCommandOption{
 			Type:        interactions.ApplicationCommandOptionTypeRole,
-			Name:        "role",
+			Name:        "timeout_role",
 			Description: "Role that will be added on timeout",
 			Required:    true,
 		},
 		interactions.ApplicationCommandOption{
 			Type:        interactions.ApplicationCommandOptionTypeInteger,
-			Name:        "timeout",
+			Name:        "timeout_duration",
 			Description: "Timeout duration, in minutes (Default: 10)",
 			Required:    false,
 		},
@@ -47,7 +47,24 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 					return
 				}
 				setupHandler(db)(ctx)
-			})
+			},
+			interactions.ApplicationCommandOption{
+				Type: interactions.ApplicationCommandOptionTypeChannel,
+				Name: "channel",
+			},
+			interactions.ApplicationCommandOption{
+				Type: interactions.ApplicationCommandOptionTypeRole,
+				Name: "timeout_role",
+			},
+			interactions.ApplicationCommandOption{
+				Type: interactions.ApplicationCommandOptionTypeInteger,
+				Name: "timeout_duration",
+			},
+			interactions.ApplicationCommandOption{
+				Type: interactions.ApplicationCommandOptionTypeString,
+				Name: "reaction",
+			},
+		)
 	}
 }
 
@@ -55,10 +72,10 @@ func setupHandler(db *bolt.DB) func(*bot.InteractionContext) {
 	return func(ctx *bot.InteractionContext) {
 		channel := ctx.OptionChannel("channel")
 		timeout := 10
-		if opt := ctx.Option("timeout"); opt != nil {
+		if opt := ctx.Option("timeout_duration"); opt != nil {
 			timeout = int(opt.Int())
 		}
-		role := ctx.OptionRole("role")
+		role := ctx.OptionRole("timeout_role")
 		reaction := "✅"
 		if opt := ctx.Option("reaction"); opt != nil {
 			reaction = opt.String()
