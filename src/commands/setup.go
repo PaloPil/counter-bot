@@ -26,7 +26,7 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 		interactions.ApplicationCommandOption{
 			Type:        interactions.ApplicationCommandOptionTypeInteger,
 			Name:        "timeout",
-			Description: "Timeout duration (Default: 10)",
+			Description: "Timeout duration, in minutes (Default: 10)",
 			Required:    false,
 		},
 		interactions.ApplicationCommandOption{

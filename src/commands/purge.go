@@ -12,12 +12,7 @@ import (
 
 var maxLimit int = 100
 
-var disabled bool = true
-
 func PurgeRegister(router *bot.Router) {
-	if disabled {
-		return
-	}
 	router.Command("purge", "Purges all messages after a certain one", purgeHandler(),
 		interactions.ApplicationCommandOption{
 			Type:        interactions.ApplicationCommandOptionTypeString,
@@ -31,7 +26,9 @@ func PurgeRegister(router *bot.Router) {
 			Description: fmt.Sprintf("Max number of messages to delete (Default: 30, Max: %d)", maxLimit),
 			Required:    false,
 		},
-	).RequirePermissions(permissions.Administrator)
+	).
+		RequirePermissions(permissions.ManageMessages).
+		RequireBotPermissions(permissions.ManageMessages)
 }
 
 func purgeHandler() func(*bot.InteractionContext) {
@@ -39,7 +36,11 @@ func purgeHandler() func(*bot.InteractionContext) {
 		messageOpt := ctx.OptionString("message")
 		message, err := snowflake.Parse(messageOpt)
 		if err != nil {
-			ctx.ReplyEphemeral("Error: Unknown message")
+			ctx.ReplyEphemeral("Error: Invalid ID")
+			return
+		}
+		if _, err := ctx.Bot.Rest.GetChannelMessage(ctx.Context(), ctx.ChannelID(), message); err != nil {
+			ctx.ReplyEphemeral(fmt.Sprintf("Error: Message n°%s not found in this channel", message.String()))
 			return
 		}
 
