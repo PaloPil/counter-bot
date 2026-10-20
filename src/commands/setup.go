@@ -49,20 +49,24 @@ func SetupRegister(router *bot.Router, db *bolt.DB) {
 				setupHandler(db)(ctx)
 			},
 			interactions.ApplicationCommandOption{
-				Type: interactions.ApplicationCommandOptionTypeChannel,
-				Name: "channel",
+				Type:        interactions.ApplicationCommandOptionTypeChannel,
+				Name:        "channel",
+				Description: "DO NOT USE",
 			},
 			interactions.ApplicationCommandOption{
-				Type: interactions.ApplicationCommandOptionTypeRole,
-				Name: "timeout_role",
+				Type:        interactions.ApplicationCommandOptionTypeRole,
+				Name:        "timeout_role",
+				Description: "DO NOT USE",
 			},
 			interactions.ApplicationCommandOption{
-				Type: interactions.ApplicationCommandOptionTypeInteger,
-				Name: "timeout_duration",
+				Type:        interactions.ApplicationCommandOptionTypeInteger,
+				Name:        "timeout_duration",
+				Description: "DO NOT USE",
 			},
 			interactions.ApplicationCommandOption{
-				Type: interactions.ApplicationCommandOptionTypeString,
-				Name: "reaction",
+				Type:        interactions.ApplicationCommandOptionTypeString,
+				Name:        "reaction",
+				Description: "DO NOT USE",
 			},
 		)
 	}
