@@ -3,12 +3,17 @@ package utils
 import (
 	"errors"
 	"log"
+	"regexp"
 
 	"github.com/expr-lang/expr"
 )
 
+var spoilerPattern = regexp.MustCompile(`(?s)\|\|.*?\|\|`)
+
 func EvalExpr(s string, l *log.Logger) (int64, error) {
-	program, err := expr.Compile(s, expr.AsInt64())
+	// Preserve token boundaries when removing spoiler text.
+	expression := spoilerPattern.ReplaceAllString(s, " ")
+	program, err := expr.Compile(expression, expr.AsInt64())
 	if err != nil {
 		l.Printf("Cannot eval `%s` (compile stage)", s)
 		return 0, errors.New("Cannot parse the expression")
