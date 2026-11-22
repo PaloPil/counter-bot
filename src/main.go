@@ -36,6 +36,9 @@ func main() {
 	commands.RegisterCommands(router, l, db)
 	client.OnMessageCreate(events.MessageCreateEventHandler(l, db))
 	client.OnMessageUpdate(events.MessageUpdateEventHandler(l, db))
+	deleteHandler := events.MessageDeleteEventHandler(l, db)
+	client.OnEvent("MESSAGE_DELETE", deleteHandler)
+	client.OnEvent("MESSAGE_DELETE_BULK", deleteHandler)
 	cleanupCtx, cancelCleanup := context.WithCancel(context.Background())
 	cleanupDone := make(chan struct{})
 	go func() {

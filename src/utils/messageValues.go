@@ -43,3 +43,18 @@ func DbGetMessageValue(db *bolt.DB, channelID, messageID string) (int64, error) 
 	})
 	return value, err
 }
+
+func DbDeleteMessageValues(db *bolt.DB, channelID string, messageIDs []string) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(messageValuesBucket)
+		if b == nil {
+			return nil
+		}
+		for _, id := range messageIDs {
+			if err := b.Delete([]byte(channelID + "/" + id)); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}

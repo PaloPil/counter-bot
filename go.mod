@@ -1,6 +1,6 @@
 module palopil/counter-bot
 
-go 1.26.8
+go 1.26.11
 
 require (
 	github.com/discord-go/discord.go v0.18.0-walk
