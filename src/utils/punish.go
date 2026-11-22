@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/discord-go/discord.go/bot"
+	"github.com/discord-go/discord.go/messages"
 	"github.com/discord-go/discord.go/snowflake"
 	bolt "go.etcd.io/bbolt"
 )
@@ -23,9 +24,13 @@ type sanction struct {
 	Expires time.Time
 }
 
-func PunishAuthor(ctx *bot.MessageContext, cfg *GuildConfig, l *log.Logger, db *bolt.DB) {
-	if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), ctx.Message.ChannelID, ctx.Message.ID); err != nil {
+func PunishAuthor(ctx *bot.BaseContext, guildID snowflake.ID, message *messages.Message, cfg *GuildConfig, l *log.Logger, db *bolt.DB) {
+	if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), message.ChannelID, message.ID); err != nil {
 		l.Print(err)
+	}
+	if message.Author == nil {
+		l.Print("Cannot sanction a message without its author")
+		return
 	}
 	role, err := snowflake.Parse(cfg.TimeoutRoleID)
 	if err != nil {
@@ -36,7 +41,7 @@ func PunishAuthor(ctx *bot.MessageContext, cfg *GuildConfig, l *log.Logger, db *
 		l.Print("Invalid timeout duration")
 		return
 	}
-	s := sanction{ctx.GuildID, ctx.Author.ID, role, time.Now().Add(time.Duration(cfg.TimeoutDuration) * time.Minute)}
+	s := sanction{guildID, message.Author.ID, role, time.Now().Add(time.Duration(cfg.TimeoutDuration) * time.Minute)}
 	key := []byte(s.Guild.String() + "/" + s.User.String() + "/" + s.Role.String())
 	sanctionMu.Lock()
 	defer sanctionMu.Unlock()
