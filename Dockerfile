@@ -20,6 +20,8 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
+USER bot
+
 COPY --from=builder /bin/counter-bot /counter-bot
 
 VOLUME ["/data"]
