@@ -46,19 +46,27 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 		prevMessage, err := getPreviousMessage(ctx, l)
 		if err != nil {
 			l.Print(err)
+			if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), message.ChannelID, message.ID); err != nil {
+				l.Print(err)
+			}
+			return
 		}
 
 		var prev int64 = 0
 		if prevMessage != nil {
 			if prevMessage.Author.ID == message.Author.ID {
-				go utils.PunishAuthor(ctx, cfg, l)
+				go utils.PunishAuthor(ctx, cfg, l, db)
 				return
 			}
 
 			m, err := utils.EvalExpr(prevMessage.Content, l)
-			if err == nil {
-				prev = m
+			if err != nil {
+				if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), message.ChannelID, message.ID); err != nil {
+					l.Print(err)
+				}
+				return
 			}
+			prev = m
 		}
 
 		n, err := utils.EvalExpr(message.Content, l)
@@ -69,7 +77,7 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 				}
 			}()
 		} else {
-			go utils.PunishAuthor(ctx, cfg, l)
+			go utils.PunishAuthor(ctx, cfg, l, db)
 		}
 	}
 }

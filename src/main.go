@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"palopil/counter-bot/src/commands"
@@ -34,6 +35,13 @@ func main() {
 
 	commands.RegisterCommands(router, l, db)
 	client.OnMessageCreate(events.MessageCreateEventHandler(l, db))
+	cleanupCtx, cancelCleanup := context.WithCancel(context.Background())
+	cleanupDone := make(chan struct{})
+	go func() {
+		defer close(cleanupDone)
+		utils.RunSanctionCleanup(cleanupCtx, db, client.Rest, l)
+	}()
+	defer func() { cancelCleanup(); <-cleanupDone }()
 
 	if err := client.Run(); err != nil {
 		l.Fatalln(err)
