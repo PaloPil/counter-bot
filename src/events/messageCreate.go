@@ -1,47 +1,44 @@
 package events
 
 import (
-	"errors"
 	"log"
+	"math"
 	"palopil/counter-bot/src/utils"
 
 	"github.com/discord-go/discord.go/bot"
 	"github.com/discord-go/discord.go/messages"
 	"github.com/discord-go/discord.go/rest"
+	"github.com/discord-go/discord.go/snowflake"
 	bolt "go.etcd.io/bbolt"
 )
 
-func getPreviousMessage(ctx *bot.MessageContext, l *log.Logger, db *bolt.DB) (*messages.Message, int64, error) {
+func getPreviousMessage(ctx *bot.BaseContext, channelID, before snowflake.ID, l *log.Logger) (*messages.Message, int64, error) {
 	limit := 50
-	before := ctx.Message.ID
-	messages, err := ctx.Bot.Rest.GetChannelMessages(
-		ctx.Context(), ctx.ChannelID(),
-		rest.GetMessagesParams{
-			Before: &before,
-			Limit:  &limit,
-		},
-	)
-	if err != nil {
-		l.Printf("Failed to fetch previous messages")
-		return nil, 0, err
-	}
-
-	if len(messages) == 0 {
-		return nil, 0, nil
-	}
-
-	for i := range messages {
-		message := &messages[i]
-		value, err := utils.EvalExpr(message.Content, l)
-		if message.EditedTimestamp == nil {
-			return message, value, err
+	for {
+		history, err := ctx.Bot.Rest.GetChannelMessages(ctx.Context(), channelID, rest.GetMessagesParams{Before: &before, Limit: &limit})
+		if err != nil {
+			return nil, 0, err
 		}
-		original, originalErr := utils.DbGetMessageValue(db, ctx.ChannelID().String(), message.ID.String())
-		if originalErr == nil && err == nil && value == original {
-			return message, original, nil
+		for i := range history {
+			message := &history[i]
+			if message.Author == nil || message.Author.Bot {
+				continue
+			}
+			value, err := utils.EvalExpr(message.Content, l)
+			if err == nil {
+				return message, value, nil
+			}
 		}
+		if len(history) < limit {
+			return nil, 0, nil
+		}
+		before = history[len(history)-1].ID
 	}
-	return nil, 0, errors.New("no usable message in recent counting history")
+}
+
+func followsPreviousMessage(message, previous *messages.Message, value, previousValue int64) bool {
+	return previousValue < math.MaxInt64 && value == previousValue+1 &&
+		(previous == nil || previous.Author.ID != message.Author.ID)
 }
 
 func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.MessageContext) {
@@ -52,12 +49,12 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 		}
 
 		message := ctx.Message
-		if ctx.ChannelID().String() != cfg.CountingChannelID || message.Author.Bot {
+		if ctx.ChannelID().String() != cfg.CountingChannelID || message.Author == nil || message.Author.Bot {
 			return
 		}
 
 		n, evalErr := utils.EvalExpr(message.Content, l)
-		prevMessage, prev, err := getPreviousMessage(ctx, l, db)
+		prevMessage, prev, err := getPreviousMessage(&ctx.BaseContext, message.ChannelID, message.ID, l)
 		if err != nil {
 			l.Print(err)
 			if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), message.ChannelID, message.ID); err != nil {
@@ -66,21 +63,7 @@ func MessageCreateEventHandler(l *log.Logger, db *bolt.DB) func(ctx *bot.Message
 			return
 		}
 
-		if prevMessage != nil {
-			if prevMessage.Author.ID == message.Author.ID {
-				go utils.PunishAuthor(&ctx.BaseContext, ctx.GuildID, &ctx.Message, cfg, l, db)
-				return
-			}
-		}
-
-		if evalErr == nil && n == prev+1 {
-			if err := utils.DbSaveMessageValue(db, message.ChannelID.String(), message.ID.String(), n); err != nil {
-				l.Print(err)
-				if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), message.ChannelID, message.ID); err != nil {
-					l.Print(err)
-				}
-				return
-			}
+		if evalErr == nil && followsPreviousMessage(&message, prevMessage, n, prev) {
 			go func() {
 				if err := ctx.Bot.Rest.CreateReaction(ctx.Context(), message.ChannelID, message.ID, cfg.Reaction); err != nil {
 					l.Printf("Cannot react")
