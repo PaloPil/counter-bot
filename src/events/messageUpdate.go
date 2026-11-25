@@ -32,7 +32,6 @@ func MessageUpdateEventHandler(l *log.Logger, db *bolt.DB) func(*bot.MessageUpda
 		if ctx.Author != nil && ctx.Author.Bot {
 			return
 		}
-		original, originalErr := utils.DbGetMessageValue(db, ctx.ChannelID.String(), ctx.ID.String())
 		// Fetch the current content because update payloads may be partial.
 		message, err := ctx.Bot.Rest.GetChannelMessage(ctx.Context(), ctx.ChannelID, ctx.ID)
 		if err != nil {
@@ -42,16 +41,15 @@ func MessageUpdateEventHandler(l *log.Logger, db *bolt.DB) func(*bot.MessageUpda
 		if message.Author != nil && message.Author.Bot {
 			return
 		}
+		previous, previousValue, err := getPreviousMessage(&ctx.BaseContext, message.ChannelID, message.ID, l)
+		if err != nil {
+			l.Print(err)
+			return
+		}
 		value, evalErr := utils.EvalExpr(message.Content, l)
-		if originalErr == nil && evalErr == nil && value == original {
+		if message.Author != nil && evalErr == nil && followsPreviousMessage(message, previous, value, previousValue) {
 			return
 		}
-		if originalErr == nil {
-			utils.PunishAuthor(&ctx.BaseContext, update.GuildID, message, cfg, l, db)
-			return
-		}
-		if err := ctx.Bot.Rest.DeleteMessage(ctx.Context(), ctx.ChannelID, ctx.ID); err != nil {
-			l.Printf("Failed to delete edited counting message %s: %v", ctx.ID, err)
-		}
+		utils.PunishAuthor(&ctx.BaseContext, update.GuildID, message, cfg, l, db)
 	}
 }
